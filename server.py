@@ -35,7 +35,7 @@ class serverTcp():
         print("socket created...")
 
         while True:
-            print("waiting for a client to connect...")
+            print("\nwaiting for a client to connect...\n")
             con, addr = self.soc.accept()
             t = Thread(target=self.tcpLink, args=(con, addr))
             t.start()
@@ -47,15 +47,43 @@ class serverTcp():
         user = []
 
         print("Connection from: %s" % str(address))
-        print("starting chat for the client")
-        self.chat(con, address)
+
+        for i in range(3):
+            attempt = self.authenticate(con)
+            if attempt:
+                auth = True
+                self.writeMsg(con, "ok")
+                break
+            else:
+                self.writeMsg(con, "no")
+
+        if auth:
+            self.chat(con, address)
+
+    def authenticate(self, con: socket):
+        attempt = self.readMsg(con)
+        auth = self.validate(attempt)
+        if auth:
+            return True
+        else:
+            return False
+
+
+    def validate(self, attempt: list):
+        switch = False
+        authList = self.openFile()
+
+        if attempt in authList:
+            switch = True
+
+        return switch
 
     def chat(self, con: socket, address: tuple):
         while True:
             msg = self.readMsg(con)
             if msg in ['q', 'exit', 'quit']:
                 break
-            print(msg)
+            print("Received: %s" % msg)
             self.writeMsg(con, msg)
         print("client %s disconnecting..." % str(address))
         self.openFile()
@@ -76,9 +104,9 @@ class serverTcp():
             else:
                 return msg
 
-    def writeMsg(self, con, msg):
+    def writeMsg(self, con: socket, msg: object):
         try:
-            print(str(type(msg)))
+
             msg = str(msg).upper()
             data = pickle.dumps(msg)
             con.send(data)
