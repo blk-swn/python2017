@@ -21,15 +21,28 @@ class clientTcp():
 
         try:
             self.soc.connect((self.host, self.port))
+
         except error as e:  # socket.error has been raised. Is the server running?
             print("Error connecting to the server: %s" % str(e))
+
         else:
 
             for i in range(3):
-                auth = self.authenticate()
-                if auth:
+
+                self.authenticate()
+
+                msg = self.readMsg()
+
+                if msg.lower == "1OK:2OK":
+                    print("Welcome!")
                     self.authorised = True
                     break
+
+                elif msg == "1OK:2NO":
+                    print("user already logged on, you have %s attempts remaining" % str(2 - i))
+
+                elif msg == "1NO":
+                    print("incorrect username or password, you have %s attemps remaining" % str(2 - i))
 
             if self.authorised:
                 self.chat()
@@ -60,12 +73,13 @@ class clientTcp():
         #   Send it over the network to the server
         self.writeMsg(attempt)
 
-        result = self.readMsg()
+#        result = self.readMsg()
 
-        if result == 'OK':
-            switch = True
+#        if result == 'OK':
+#            switch = True
 
-        return switch
+#        return switch
+
 
     def readMsg(self):
         ''' 
