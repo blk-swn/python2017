@@ -24,9 +24,15 @@ class clientTcp():
         except error as e:  # socket.error has been raised. Is the server running?
             print("Error connecting to the server: %s" % str(e))
         else:
+
             for i in range(3):
-                self.authenticate()
-            self.chat()
+                auth = self.authenticate()
+                if auth:
+                    self.authorised = True
+                    break
+
+            if self.authorised:
+                self.chat()
 
     def chat(self):
         while True:
@@ -50,8 +56,7 @@ class clientTcp():
 
         #   Store it in a tuple
         attempt = [username, password]
-        print(str(type(attempt)))
-        print(attempt)
+
         #   Send it over the network to the server
         self.writeMsg(attempt)
 
