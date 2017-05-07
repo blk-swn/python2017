@@ -20,7 +20,7 @@ class serverTcp():
         self.soc = socket(AF_INET, SOCK_STREAM)
         self.soc.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 
-        self.userList = []
+        self.usersLoggedOn = []
         self.connections = []
 
     def start(self):
@@ -43,40 +43,47 @@ class serverTcp():
 
     def tcpLink(self, con: socket, address: tuple):
         auth = False
-        count = 0
         user = []
 
         print("Connection from: %s" % str(address))
 
         for i in range(3):
-            attempt = self.authenticate(con)
-            if attempt:
-                auth = True
-                self.writeMsg(con, "ok")
-                break
+            result = ""
+
+            attempt = self.readMsg(con)
+
+            authUser = self.check_credentials(attempt)
+
+            if authUser:
+                result += "1ok"
+                if attempt not in self.usersLoggedOn:
+                    auth = True
+                    result += ":2ok"
+                    user = attempt
+                    self.usersLoggedOn.append(user)
+                else:
+                    result += ":2no"
             else:
-                self.writeMsg(con, "no")
+                result += "1no"
+
+            self.writeMsg(con, result)
 
         if auth:
+            print(user, "authenticated.")
             self.chat(con, address)
 
-    def authenticate(self, con: socket):
-        attempt = self.readMsg(con)
-        auth = self.validate(attempt)
-        if auth:
+        print("The End")
+
+
+    def check_credentials(self, attempt):
+
+        authList = self.get_auth_list()
+
+        if attempt in authList:
             return True
         else:
             return False
 
-
-    def validate(self, attempt: list):
-        switch = False
-        authList = self.openFile()
-
-        if attempt in authList:
-            switch = True
-
-        return switch
 
     def chat(self, con: socket, address: tuple):
         while True:
@@ -114,7 +121,7 @@ class serverTcp():
         except Exception as e:
             print("ERROR [writeMsg] %s " % str(e))
 
-    def openFile(self):
+    def get_auth_list(self):
         '''
             This function opens the file, creates a list out of the contents
             and returns the list to the caller
