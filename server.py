@@ -41,12 +41,20 @@ class serverTcp():
             t.start()
             self.connections.append(t)
 
+    '''
+        Don't get confused with the arguments, i am simply telling the compiler what
+        type of object to expect.
+    '''
     def tcpLink(self, con: socket, address: tuple):
         auth = False
         user = []
 
         print("Connection from: %s" % str(address))
 
+        '''
+            This is the main client function. When a client connects, 
+            the server will immediately attempt to authorise the user.    
+        '''
         for i in range(3):
             result = ""
 
@@ -76,6 +84,11 @@ class serverTcp():
 
 
     def check_credentials(self, attempt):
+        '''
+            This function will use the get_auth_list function
+            to return a list of valid users. The attempt is passed
+            through as an argument and compared against the "database"
+        '''
 
         authList = self.get_auth_list()
 

@@ -62,23 +62,18 @@ class clientTcp():
         self.soc.close()
 
     def authenticate(self):
-        switch = False
-        #   Get the users username and password
+        ''' 
+            A small functions that asks the user to enter a username
+            and password. They are inserted into a list object and 
+            sent to the server. 
+        '''
         username = input("Username: ")
         password = input("Password: ")
 
-        #   Store it in a tuple
-        attempt = [username, password]
+        attempt = [username, password]  # Store the username and password pair in a list.
 
-        #   Send it over the network to the server
-        self.writeMsg(attempt)
+        self.writeMsg(attempt)  # Send the attempt over the network to the server.
 
-#        result = self.readMsg()
-
-#        if result == 'OK':
-#            switch = True
-
-#        return switch
 
 
     def readMsg(self):
