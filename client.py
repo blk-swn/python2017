@@ -45,30 +45,62 @@ class clientTcp():
                     print("incorrect username or password, you have %s attemps remaining" % str(2 - i))
 
             if self.authorised:
-                self.menu()
-                selection = input("Enter your choice: ")
+                while True:
+                    self.menu()
+                    selection = input("Enter your choice: ")
 
-                if selection == '1':
-                    self.getServerNameIp()
+                    if selection == '1':
+                        self.getServerNameIp()
 
-                elif selection == '2':
-                    self.getStatistics()
+                    elif selection == '2':
+                        self.getStatistics()
 
-                elif selection == '3':
-                    pass
+                    elif selection == '3':
+                        self.addNewOrganisation()
 
-                elif selection == '4':
-                    pass
+                    elif selection == '4':
+                        self.removeOrganisation()
 
-                elif selection == '5':
-                    pass
+                    elif selection == '5':
+                        self.quitProgram()
+                        break
 
 
     def getServerNameIp(self):
         print("Get the server name and IP...")
+        self.writeMsg("1")
+        msg = self.readMsg()
+        print(msg)
+        if msg == '1OK':
+            request = input("Enter the organisations name: ")
+            self.writeMsg(request)
+
+            reply = self.readMsg()
+            print(reply)
+
 
     def getStatistics(self):
-        print("Get stats...")
+        self.writeMsg("2")
+        msg = self.readMsg()
+
+        if msg == "2OK":
+            result = self.readMsg()
+            print(type(result))
+            print(result)
+
+    def addNewOrganisation(self):
+        self.writeMsg("3")
+        msg = self.readMsg()
+        print(msg)
+
+    def removeOrganisation(self):
+        self.writeMsg("4")
+        msg = self.readMsg()
+        print(msg)
+
+    def quitProgram(self):
+        self.writeMsg("5")
+        self.soc.close()
 
     def chat(self):
 

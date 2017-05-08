@@ -1,6 +1,7 @@
 from socket import *
 import pickle
 from threading import Thread
+import statistics
 '''
     This is the server class it handles everything on the server side.
 '''
@@ -74,16 +75,16 @@ class serverTcp():
             authUser = self.check_credentials(attempt)
 
             if authUser:
-                result += "1ok"
+                result += "1OK"
                 if attempt not in self.usersLoggedOn:
                     auth = True
-                    result += ":2ok"
+                    result += ":2OK"
                     user = attempt
                     self.usersLoggedOn.append(user)
                 else:
-                    result += ":2no"
+                    result += ":2NO"
             else:
-                result += "1no"
+                result += "1NO"
 
             self.writeMsg(con, result)
 
@@ -91,11 +92,98 @@ class serverTcp():
                 break
 
         if auth:
-            print(user, "authenticated.")
-            self.chat(con, address, user)
+            print("\n%s authenticated.\n" % str(user))
+            #self.chat(con, address, user)
+            while True:
+                msg = self.readMsg(con)
+
+                if msg == '1':
+                    self.getServerNameIp(con)
+                elif msg == '2':
+                    self.getStatistics(con)
+                elif msg == '3':
+                    self.addNewOrganisation(con)
+                elif msg == '4':
+                    self.removeOrganisation(con)
+                elif msg == '5':
+                    self.quitProgram(user, con)
+                    break
+                else:
+                    print("bad user...")
+                    self.writeMsg(con, "bad user...")
+
 
         print("The End")
 
+    def getServerNameIp(self, con: socket):
+        self.writeMsg(con, "1OK")
+
+        request = self.readMsg(con)
+
+        serverList = self.get_server_list()
+
+        organisations = [item[0] for item in serverList]
+
+
+
+        #uptimes = self.get_server_uptimes()
+        #print(uptimes)
+
+        if request in organisations:
+
+            self.writeMsg(con, "server ok")
+        else:
+            print("not ok")
+            self.writeMsg(con, "server not ok")
+
+    def getStatistics(self, con: socket):
+        self.writeMsg(con, "2OK")
+
+        serverFile = self.get_server_list()
+        uptimeStr = [item[3] for item in serverFile]
+        uptimes = list(map(int, uptimeStr))
+        #times = sorted(uptimes)
+        print("Pre-sort: %s" % str(uptimes))
+        uptimes.sort(key=lambda x: x)
+        print("Post-sort: %s" % str(uptimes))
+        # Calculate the average
+        #score = 0
+        #for element in uptimes:
+        #    score += element
+        #average = score / len(uptimes)
+
+        # Calculate the average
+        average = statistics.mean(uptimes)
+
+        # Calculate the median
+        ''' 
+            If the no. of elements in the list is a even one
+            there is no "middle". Instead a "mean" is calculated
+            from the upper middle and lower middle elements.
+        '''
+        if len(uptimes) % 2 == 0:
+            print("even")
+            idx1 = (len(uptimes) / 2) - 1
+            idx2 = (len(uptimes) / 2)
+            num1 = uptimes[int(idx1)]
+            num2 = uptimes[int(idx2)]
+            median = (num1 + num2) / 2
+        else:
+            idx = ((len(uptimes) + 1) / 2) - 1
+            median = uptimes[int(idx)]
+
+        self.writeMsg(con, [average, median])
+
+    def addNewOrganisation(self, con: socket):
+        self.writeMsg(con, "Add a new org...")
+
+    def removeOrganisation(self, con: socket):
+        self.writeMsg(con, "Remove org...")
+
+    def quitProgram(self, user, con: socket):
+        self.usersLoggedOn.remove(user)
+        con.close()
+        self.soc.close()
 
     def check_credentials(self, attempt):
         '''
@@ -142,7 +230,7 @@ class serverTcp():
     def writeMsg(self, con: socket, msg: object):
         try:
 
-            msg = str(msg).upper()
+            #msg = str(msg).upper()
 
             data = pickle.dumps(msg)
 
@@ -151,6 +239,27 @@ class serverTcp():
             print("Sent: '%s'" % msg)
         except Exception as e:
             print("ERROR [writeMsg] %s " % str(e))
+
+    def get_server_uptimes(self):
+        serverList = self.get_server_list()
+
+        uptimeList = [item[0] for item in serverList]
+
+        #for values in serverList:
+        #    output.append(values[3])
+
+        return uptimeList
+
+    def get_server_list(self):
+        try:
+            f = open("organisations.dat", 'r')
+        except IOError as e:
+            print("File could not be found...")
+        else:
+            raw = f.readlines()
+            f.close()
+            lines = list(map(str.split, raw))
+            return lines
 
     def get_auth_list(self):
         '''
@@ -164,7 +273,7 @@ class serverTcp():
 
                 lines = list(map(str.split, raw))
 
-                print(lines)
+                #print(lines)
             finally:
                 f.close()
                 return lines
