@@ -5,6 +5,17 @@ from threading import Thread
     This is the server class it handles everything on the server side.
 '''
 
+#print("imran")
+#name = input("What is your name? ")
+#print(name)
+
+#def getName():
+#    name = input("What is your name? ")
+#    print(name)
+
+#getName()
+
+
 
 class serverTcp():
 
@@ -45,7 +56,7 @@ class serverTcp():
         Don't get confused with the arguments, i am simply telling the compiler what
         type of object to expect.
     '''
-    def tcpLink(self, con: socket, address: tuple):
+    def tcpLink(self, con, address):
         auth = False
         user = []
 
@@ -76,9 +87,12 @@ class serverTcp():
 
             self.writeMsg(con, result)
 
+            if auth:
+                break
+
         if auth:
             print(user, "authenticated.")
-            self.chat(con, address)
+            self.chat(con, address, user)
 
         print("The End")
 
@@ -98,15 +112,16 @@ class serverTcp():
             return False
 
 
-    def chat(self, con: socket, address: tuple):
+    def chat(self, con: socket, address: tuple, user):
         while True:
             msg = self.readMsg(con)
             if msg in ['q', 'exit', 'quit']:
+                self.usersLoggedOn.remove(user)
                 break
             print("Received: %s" % msg)
             self.writeMsg(con, msg)
         print("client %s disconnecting..." % str(address))
-        self.openFile()
+
         con.close()
 
 
@@ -128,8 +143,11 @@ class serverTcp():
         try:
 
             msg = str(msg).upper()
+
             data = pickle.dumps(msg)
+
             con.send(data)
+
             print("Sent: '%s'" % msg)
         except Exception as e:
             print("ERROR [writeMsg] %s " % str(e))
@@ -143,7 +161,9 @@ class serverTcp():
             f = open('auth.dat', 'r')
             try:
                 raw = f.readlines()
+
                 lines = list(map(str.split, raw))
+
                 print(lines)
             finally:
                 f.close()
@@ -156,4 +176,5 @@ class serverTcp():
 '''
 
 server = serverTcp()    # Create an instance of the serverTcp() class
+
 server.start()          # Run the start method.
