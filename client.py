@@ -64,6 +64,12 @@ class clientTcp():
                     elif selection == '5':
                         self.quitProgram()
                         break
+                    qt = input("Would you lke to go again? ")
+                    if qt == "no":
+                        self.quitProgram()
+                        break
+
+
 
 
     def getServerNameIp(self):
@@ -85,7 +91,7 @@ class clientTcp():
 
         if msg == "2OK":
             result = self.readMsg()
-            print(type(result))
+
             print(result)
 
     def addNewOrganisation(self):

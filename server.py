@@ -97,21 +97,25 @@ class serverTcp():
             while True:
                 msg = self.readMsg(con)
 
-                if msg == '1':
-                    self.getServerNameIp(con)
-                elif msg == '2':
-                    self.getStatistics(con)
-                elif msg == '3':
-                    self.addNewOrganisation(con)
-                elif msg == '4':
-                    self.removeOrganisation(con)
-                elif msg == '5':
+                if msg in ['q', 'quit', 'exit', '5']:
                     self.quitProgram(user, con)
                     break
+
+                elif msg == '1':
+                    self.getServerNameIp(con)
+
+                elif msg == '2':
+                    self.getStatistics(con)
+
+                elif msg == '3':
+                    self.addNewOrganisation(con)
+
+                elif msg == '4':
+                    self.removeOrganisation(con)
+
                 else:
                     print("bad user...")
-                    self.writeMsg(con, "bad user...")
-
+                    break
 
         print("The End")
 
@@ -120,18 +124,13 @@ class serverTcp():
 
         request = self.readMsg(con)
 
-        serverList = self.get_server_list()
+        serverFile = self.get_server_list()
 
-        organisations = [item[0] for item in serverList]
-
-
-
-        #uptimes = self.get_server_uptimes()
-        #print(uptimes)
+        organisations = [item[0] for item in serverFile]
 
         if request in organisations:
-
             self.writeMsg(con, "server ok")
+
         else:
             print("not ok")
             self.writeMsg(con, "server not ok")
@@ -142,6 +141,12 @@ class serverTcp():
         serverFile = self.get_server_list()
         uptimeStr = [item[3] for item in serverFile]
         uptimes = list(map(int, uptimeStr))
+        '''
+            We need to sort the list of uptimes into an ascending order
+            to calculate the median. There are alot of ways to do this 
+            in Python. In this case I am using List Comprehensions to 
+            iterate and sort the list.
+        '''
         #times = sorted(uptimes)
         print("Pre-sort: %s" % str(uptimes))
         uptimes.sort(key=lambda x: x)
@@ -162,7 +167,6 @@ class serverTcp():
             from the upper middle and lower middle elements.
         '''
         if len(uptimes) % 2 == 0:
-            print("even")
             idx1 = (len(uptimes) / 2) - 1
             idx2 = (len(uptimes) / 2)
             num1 = uptimes[int(idx1)]
@@ -172,7 +176,21 @@ class serverTcp():
             idx = ((len(uptimes) + 1) / 2) - 1
             median = uptimes[int(idx)]
 
-        self.writeMsg(con, [average, median])
+        # Max
+        maximum = max(uptimes)
+
+        # Min
+        minimum = min(uptimes)
+
+        mMmM = [
+            ["Mean", str(average)],
+            ["Median", str(median)],
+            ["Minimum", str(minimum)],
+            ["Maximum", str(maximum)]
+        ]
+
+
+        self.writeMsg(con, mMmM)
 
     def addNewOrganisation(self, con: socket):
         self.writeMsg(con, "Add a new org...")
