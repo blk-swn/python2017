@@ -82,7 +82,11 @@ class clientTcp():
     def getStatistics(self):
         self.writeMsg("2")
         msg = self.readMsg()
-        print(msg)
+
+        if msg == "2OK":
+            result = self.readMsg()
+            print(type(result))
+            print(result)
 
     def addNewOrganisation(self):
         self.writeMsg("3")
