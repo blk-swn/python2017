@@ -91,11 +91,58 @@ class serverTcp():
                 break
 
         if auth:
-            print(user, "authenticated.")
-            self.chat(con, address, user)
+            print("\n%s authenticated.\n" % str(user))
+            #self.chat(con, address, user)
+            while True:
+                msg = self.readMsg(con)
+
+                if msg == '1':
+                    self.getServerNameIp(con)
+                elif msg == '2':
+                    self.getStatistics(con)
+                elif msg == '3':
+                    self.addNewOrganisation(con)
+                elif msg == '4':
+                    self.removeOrganisation(con)
+                elif msg == '5':
+                    self.quitProgram(user, con)
+                    break
+                else:
+                    print("bad user...")
+                    self.writeMsg(con, "bad user...")
+
 
         print("The End")
 
+    def getServerNameIp(self, con: socket):
+        self.writeMsg(con, "1ok")
+
+        request = self.readMsg(con)
+
+        serverList = self.get_server_list()
+
+        uptimes = self.get_server_uptimes()
+        print(uptimes)
+
+        if request in serverList:
+            print("ok")
+            self.writeMsg(con, "server ok")
+        else:
+            print("not ok")
+            self.writeMsg(con, "server not ok")
+
+    def getStatistics(self, con: socket):
+        self.writeMsg(con, "Get stats...")
+
+    def addNewOrganisation(self, con: socket):
+        self.writeMsg(con, "Add a new org...")
+
+    def removeOrganisation(self, con: socket):
+        self.writeMsg(con, "Remove org...")
+
+    def quitProgram(self, user, con: socket):
+        self.usersLoggedOn.remove(user)
+        con.close()
 
     def check_credentials(self, attempt):
         '''
@@ -152,6 +199,27 @@ class serverTcp():
         except Exception as e:
             print("ERROR [writeMsg] %s " % str(e))
 
+    def get_server_uptimes(self):
+        serverList = self.get_server_list()
+
+        output = []
+
+        for values in serverList:
+            output.append(values[3])
+
+        return output
+
+    def get_server_list(self):
+        try:
+            f = open("organisations.dat", 'r')
+        except IOError as e:
+            print("File could not be found...")
+        else:
+            raw = f.readlines()
+            f.close()
+            lines = list(map(str.split, raw))
+            return lines
+
     def get_auth_list(self):
         '''
             This function opens the file, creates a list out of the contents
@@ -164,7 +232,7 @@ class serverTcp():
 
                 lines = list(map(str.split, raw))
 
-                print(lines)
+                #print(lines)
             finally:
                 f.close()
                 return lines
