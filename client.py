@@ -33,7 +33,7 @@ class clientTcp():
 
                 msg = self.readMsg()
 
-                if msg.lower == "1OK:2OK":
+                if msg == "1OK:2OK":
                     print("Welcome!")
                     self.authorised = True
                     break
@@ -45,9 +45,33 @@ class clientTcp():
                     print("incorrect username or password, you have %s attemps remaining" % str(2 - i))
 
             if self.authorised:
-                self.chat()
+                self.menu()
+                selection = input("Enter your choice: ")
+
+                if selection == '1':
+                    self.getServerNameIp()
+
+                elif selection == '2':
+                    self.getStatistics()
+
+                elif selection == '3':
+                    pass
+
+                elif selection == '4':
+                    pass
+
+                elif selection == '5':
+                    pass
+
+
+    def getServerNameIp(self):
+        print("Get the server name and IP...")
+
+    def getStatistics(self):
+        print("Get stats...")
 
     def chat(self):
+
         while True:
             msg = input("say something: ")
 
@@ -62,23 +86,18 @@ class clientTcp():
         self.soc.close()
 
     def authenticate(self):
-        switch = False
-        #   Get the users username and password
+        ''' 
+            A small functions that asks the user to enter a username
+            and password. They are inserted into a list object and 
+            sent to the server. 
+        '''
         username = input("Username: ")
         password = input("Password: ")
 
-        #   Store it in a tuple
-        attempt = [username, password]
+        attempt = [username, password]  # Store the username and password pair in a list.
 
-        #   Send it over the network to the server
-        self.writeMsg(attempt)
+        self.writeMsg(attempt)  # Send the attempt over the network to the server.
 
-#        result = self.readMsg()
-
-#        if result == 'OK':
-#            switch = True
-
-#        return switch
 
 
     def readMsg(self):
@@ -117,6 +136,17 @@ class clientTcp():
             print("error serializing the object...")
         except:
             print("unknown error serializing...")
+
+    def menu(self):
+        menu = '{:*^54}\n'.format('')
+        menu += '{:^54}\n'.format('Menu')
+        menu += '{:*^54}\n'.format('')
+        menu += '(1) {:20}\n'.format('Get Server Name and IP Address')
+        menu += '(2) {:20}\n'.format('Get Server Stats (mean, median, minimum, maximum)')
+        menu += '(3) {:20}\n'.format('Add a new organisation')
+        menu += '(4) {:20}\n'.format('Remove an organisation')
+        menu += '(5) {:20}\n'.format('Quit program')
+        print(menu)
 
 client = clientTcp()
 client.start()
