@@ -86,6 +86,7 @@ class clientTcp():
 
 
     def getStatistics(self):
+        print()
         self.writeMsg("2")
         msg = self.readMsg()
 
@@ -176,14 +177,20 @@ class clientTcp():
             print("unknown error serializing...")
 
     def menu(self):
-        menu = '{:*^54}\n'.format('')
-        menu += '{:^54}\n'.format('Menu')
-        menu += '{:*^54}\n'.format('')
-        menu += '(1) {:20}\n'.format('Get Server Name and IP Address')
-        menu += '(2) {:20}\n'.format('Get Server Stats (mean, median, minimum, maximum)')
-        menu += '(3) {:20}\n'.format('Add a new organisation')
-        menu += '(4) {:20}\n'.format('Remove an organisation')
-        menu += '(5) {:20}\n'.format('Quit program')
+        menu = '\n{:*^36}\n'.format('')
+        menu += '{:^36}\n'.format('Menu')
+        menu += '{:*^36}\n'.format('')
+        menu += '{:6}'.format('(1)')
+        menu += '{:>6}\n'.format('Get Server Name and IP Address')
+        menu += '{:10}'.format('(2)')
+        menu += '{:>10}\n'.format('Retrieve Server Statistics')
+        menu += '{:14}'.format('(3)')
+        menu += '{:>14}\n'.format('Add a New Organisation')
+        menu += '{:14}'.format('(4)')
+        menu += '{:>14}\n'.format('Remove an Organisation')
+        menu += '{:18}'.format('(5)')
+        menu += '{:>18}\n'.format('Quit Program')
+
         print(menu)
 
 client = clientTcp()

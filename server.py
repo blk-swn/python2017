@@ -129,7 +129,7 @@ class serverTcp():
         organisations = [item[0] for item in serverFile]
 
         if request in organisations:
-            self.writeMsg(con, "server ok")
+            self.writeMsg(con, "Organisation Found...")
 
         else:
             print("not ok")
@@ -182,15 +182,32 @@ class serverTcp():
         # Min
         minimum = min(uptimes)
 
-        mMmM = [
-            ["Mean", str(average)],
-            ["Median", str(median)],
-            ["Minimum", str(minimum)],
-            ["Maximum", str(maximum)]
-        ]
+        #statsList = [
+        #    ["Mean", str(average)],
+        #    ["Median", str(median)],
+        #    ["Minimum", str(minimum)],
+        #    ["Maximum", str(maximum)]
+        #]
+
+        #statsReport = "Mean: %s\n" % str(average)
+        #statsReport += "Median: %s\n" % str(median)
+        #statsReport += "Minimum %s\n" % str(minimum)
+        #statsReport += "Maximum %s\n" % str(maximum)
 
 
-        self.writeMsg(con, mMmM)
+        rep = '{:*^36}\n'.format('')
+        rep += '{:^36}\n'.format('Uptime Statistics Report')
+        rep += '{:*^36}\n'.format('')
+        rep += '{:18}'.format('Mean:')
+        rep += '{:>18}\n'.format(str(round(average, 2)))
+        rep += '{:18}'.format("Median:")
+        rep += '{:>18}\n'.format(str(median))
+        rep += '{:18}'.format("Minimum:")
+        rep += '{:>18}\n'.format(str(minimum))
+        rep += '{:18}'.format("Maximum:")
+        rep += '{:>18}\n'.format(str(maximum))
+
+        self.writeMsg(con, rep)
 
     def addNewOrganisation(self, con: socket):
         self.writeMsg(con, "Add a new org...")
@@ -201,7 +218,22 @@ class serverTcp():
     def quitProgram(self, user, con: socket):
         self.usersLoggedOn.remove(user)
         con.close()
-        self.soc.close()
+        #self.soc.close()
+
+    def create_report(self, ave, med, mini, maxi):
+        rep = '{:*^36}\n'.format('')
+        rep += '{:^36}\n'.format('Uptime Statistics Report')
+        rep += '{:*^36}\n'.format('')
+        rep += '{:18}'.format('Mean:')
+        rep += '{:>18}\n'.format(str(round(ave, 2)))
+        rep += '{:18}'.format("Median:")
+        rep += '{:>18}\n'.format(str(med))
+        rep += '{:18}'.format("Minimum:")
+        rep += '{:>18}\n'.format(str(mini))
+        rep += '{:18}'.format("Maximum:")
+        rep += '{:>18}\n'.format(str(maxi))
+
+        return rep
 
     def check_credentials(self, attempt):
         '''
