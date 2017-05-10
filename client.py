@@ -164,7 +164,7 @@ class clientTcp():
         except error as e:
             print("ERROR: %s" % str(e))
 
-    def writeMsg(self, msg: object):
+    def writeMsg(self, msg):
         try:
             data = pickle.dumps(msg)
             try:

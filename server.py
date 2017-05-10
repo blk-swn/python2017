@@ -27,6 +27,7 @@ class serverTcp():
             some variables so we can access them throughout the class. the variables with self. in-front
             of them are like global variables accessible from anywhere in the serverTcp class.
         '''
+
         self.host = ''
         self.port = 5001
         self.soc = socket(AF_INET, SOCK_STREAM)
