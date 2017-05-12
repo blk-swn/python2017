@@ -8,7 +8,6 @@ from socket import *
     handles writing messages to the server. 
 '''
 class clientTcp():
-
     def __init__(self):
         self.host = ''
         self.port = 5001
@@ -16,10 +15,6 @@ class clientTcp():
 
         self.authorised = False
         self.credentials = []
-
-    def main(self):
-        print("hello")
-        
 
     def start(self):
 
@@ -77,7 +72,6 @@ class clientTcp():
                         self.quitProgram()
                         break
 
-
     def getServerNameIp(self):
         print("Get the server name and IP...")
         self.writeMsg("1")
@@ -90,7 +84,6 @@ class clientTcp():
             reply = self.readMsg()
             print(type(reply))
             print(reply)
-
 
     def getStatistics(self):
         self.writeMsg("2")
@@ -142,8 +135,6 @@ class clientTcp():
         attempt = [username, password]  # Store the username and password pair in a list.
 
         self.writeMsg(attempt)  # Send the attempt over the network to the server.
-
-
 
     def readMsg(self):
         ''' 

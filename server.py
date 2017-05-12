@@ -6,19 +6,7 @@ import statistics
     This is the server class it handles everything on the server side.
 '''
 
-#print("imran")
-#name = input("What is your name? ")
-#print(name)
-
-#def getName():
-#    name = input("What is your name? ")
-#    print(name)
-
-#getName()
-
-
 class serverTcp():
-
     def __init__(self):
         '''
             This is the initializer '__init__' method. When i create an instance of the class
@@ -115,11 +103,6 @@ class serverTcp():
                 elif msg in quitList:
                     self.quit_program(user, con)
                     break
-
-                else:
-                    print("bad user...")
-                    self.writeMsg(con, "bad user...")
-
 
         print("The End")
 
