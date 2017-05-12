@@ -26,12 +26,8 @@ class serverTcp():
             some variables so we can access them throughout the class. the variables with self. in-front
             of them are like global variables accessible from anywhere in the serverTcp class.
         '''
-<<<<<<< imrans-branch
-        self.host = ''
-=======
 
         self.host = '' # If this doesnt work try gethostname()
->>>>>>> local
         self.port = 5001
         self.soc = socket(AF_INET, SOCK_STREAM)
         self.soc.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
@@ -98,7 +94,6 @@ class serverTcp():
         if userAuthorised: # The user has been authorised, wait for instructions...
             print("\n%s authenticated.\n" % str(user))
 
-<<<<<<< imrans-branch
                 if msg == '1':
                     self.getServerNameIp(con)
                 elif msg == '2':
@@ -110,7 +105,7 @@ class serverTcp():
                 elif msg == '5':
                     self.quitProgram(user, con)
                     break
-=======
+
             quitList = ['q', 'quit', 'exit', '5'] # List of commands the client can use to close the connection
     
             while True:
@@ -133,7 +128,6 @@ class serverTcp():
                     self.quit_program(user, con)
                     break
 
->>>>>>> local
                 else:
                     print("bad user...")
                     self.writeMsg(con, "bad user...")
@@ -141,11 +135,11 @@ class serverTcp():
 
         print("The End")
 
-    def get_server_name_and_ip(self, con: socket):
+    def get_server_name_and_ip(self, con):
         self.write_msg(con, "1OK")
         request = self.read_msg(con)
         serverNameAndIp = []
-
+        organisations = []
         try:
             f = open("organisations.txt", 'r')
             raw = f.readlines()
@@ -154,25 +148,9 @@ class serverTcp():
             print("File not found")
             self.write_msg(con, "We are sorry for any inconvenience our servers are down :(")
         else:
-            organisations = list(map(str.split, raw))
+            for organisation in raw:
+                organisations.append(organisation.split())
 
-<<<<<<< imrans-branch
-        serverList = self.get_server_list()
-
-        organisations = [item[0] for item in serverList]
-
-
-
-        #uptimes = self.get_server_uptimes()
-        #print(uptimes)
-
-        if request in organisations:
-
-            self.writeMsg(con, "server ok")
-        else:
-            print("not ok")
-            self.writeMsg(con, "server not ok")
-=======
             for organisation in organisations:
                 
                 if organisation[0].lower() == request.lower():
@@ -186,7 +164,6 @@ class serverTcp():
     def get_statistics(self, con: socket):
 
         self.write_msg(con, "2OK") # Acknowledgment from server to client.
->>>>>>> local
 
         """ The client has requested the server uptime statistics. The first thing we have to do is open the file 
             and make a seperate list of uptimes.
@@ -195,25 +172,6 @@ class serverTcp():
        
         uptimes = [] # Initialise an empty array to store the server uptimes
 
-<<<<<<< imrans-branch
-        serverFile = self.get_server_list()
-        uptimeStr = [item[3] for item in serverFile]
-        uptimes = list(map(int, uptimeStr))
-        #times = sorted(uptimes)
-        print("Pre-sort: %s" % str(uptimes))
-        uptimes.sort(key=lambda x: x)
-        print("Post-sort: %s" % str(uptimes))
-        # Calculate the average
-        #score = 0
-        #for element in uptimes:
-        #    score += element
-        #average = score / len(uptimes)
-
-        # Calculate the average
-        average = statistics.mean(uptimes)
-
-        # Calculate the median
-=======
         for organisation in organisations: # Iterate the organisations file and append the 4th element (uptime) to the uptimes[] array
             uptimes.append( int( organisation[3] ) ) # Cast tjhe string to an integer and append it to the new uptimes list.
     
@@ -228,30 +186,21 @@ class serverTcp():
         average = total / len(uptimes)
 
         """ Calculate the median """
->>>>>>> local
         ''' 
             If the # of elements in the list is a even one
             there is no "middle". Instead a "mean" is calculated
             from the upper-middle and lower-middle elements.
         '''
-<<<<<<< imrans-branch
-        if len(uptimes) % 2 == 0:
-            print("even")
-=======
         if len(uptimes) % 2 == 0: # Is the length of the array an even number?
->>>>>>> local
             idx1 = (len(uptimes) / 2) - 1
             idx2 = (len(uptimes) / 2)
             num1 = uptimes[int(idx1)]
             num2 = uptimes[int(idx2)]
             median = (num1 + num2) / 2
-        else: # The array has a middle value
+        else: 
             idx = ((len(uptimes) + 1) / 2) - 1
             median = uptimes[int(idx)]
 
-<<<<<<< imrans-branch
-        self.writeMsg(con, [average, median])
-=======
         """ Calculate the minimum and the maximum """
         low = uptimes[0]
         high = uptimes[len(uptimes) - 1]
@@ -277,7 +226,6 @@ class serverTcp():
         rep += '{:>18}\n'.format(high)
 
         self.write_msg(con, rep) # Send report
->>>>>>> local
 
     def add_new_organisation(self, con: socket):
         self.write_msg(con, "Add a new org...")
@@ -285,16 +233,9 @@ class serverTcp():
     def remove_organisation(self, con: socket):
         self.write_msg(con, "Remove org...")
 
-<<<<<<< imrans-branch
-    def quitProgram(self, user, con: socket):
-        self.usersLoggedOn.remove(user)
-        con.close()
-        self.soc.close()
-=======
     def quit_program(self, user, con: socket):
         self.usersLoggedOn.remove(user) # Remove the user from the currently logged on list.
         con.close() # Close the clients connection...
->>>>>>> local
 
     def check_credentials(self, attempt):
         '''
