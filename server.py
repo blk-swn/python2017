@@ -17,7 +17,6 @@ import statistics
 #getName()
 
 
-
 class serverTcp():
 
     def __init__(self):
@@ -27,13 +26,18 @@ class serverTcp():
             some variables so we can access them throughout the class. the variables with self. in-front
             of them are like global variables accessible from anywhere in the serverTcp class.
         '''
+<<<<<<< imrans-branch
         self.host = ''
+=======
+
+        self.host = '' # If this doesnt work try gethostname()
+>>>>>>> local
         self.port = 5001
         self.soc = socket(AF_INET, SOCK_STREAM)
         self.soc.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-
-        self.usersLoggedOn = []
-        self.connections = []
+        
+        self.usersLoggedOn = [] # This is a list used to track users that are currently logged on
+        self.connections = [] # Each client thread is stored in a list.
 
     def start(self):
         '''
@@ -49,54 +53,52 @@ class serverTcp():
         while True:
             print("\nwaiting for a client to connect...\n")
             con, addr = self.soc.accept()
+            """When a client connects, they are given a thread and they begin authorisation in the tcp_link() function."""
             t = Thread(target=self.tcpLink, args=(con, addr))
             t.start()
             self.connections.append(t)
 
-    '''
-        Don't get confused with the arguments, i am simply telling the compiler what
-        type of object to expect.
-    '''
     def tcpLink(self, con, address):
-        auth = False
+        userAuthorised = False # When the user logs on successfully, this will be set to true. Used as a control statement throughout the function.
         user = []
-
         print("Connection from: %s" % str(address))
-
         '''
             This is the main client function. When a client connects, 
             the server will immediately attempt to authorise the user.    
         '''
-        for i in range(3):
-            result = ""
+        for i in range(3): # Run the authentication attempt 3 times in a for loop
+            attempt = self.read_msg(con) # Waiting for the client to send their username and password attempt
+            """ Pass the attempt to the check_credentials() function,
+                if the username and password match it returns True """
+            attemptAuthorised = self.check_credentials(attempt) # True if the user is in the text file
+            
+            """  If the user is already logged on they will be rejected access.
+                 This piece of code will build a response to send back to the client.
+                 There are 3 possible responses. 0, 1 and 2.
 
-            attempt = self.readMsg(con)
+                 0 = [unsuccessful] username and password were not found
+                 1 = [unsuccessful] username and password found but the user is logged on
+                 2 = [success] username and password found and the user isn't logged on 
+            """
+            result = 0 # initialise the result to 0
+            if attemptAuthorised: # True is the username and password were correct
+                result = 1 # The result is set to 1
+                """ We need to check if the user is already logged on. """
+                if attempt not in self.usersLoggedOn: # If the user isn't stored in the list of logged on users
+                    userAuthorised = True # Set this variable to true, we will use this to break out of the for loop
+                    result = 2 # The result is set to 2, this will be transmitted to the client alloowing them access
+                    user = attempt # Store the correct attempt in a list
+                    self.usersLoggedOn.append(user) # appent the correct attempt to the list of users logged on, they will fail this check next time...
 
-            authUser = self.check_credentials(attempt)
+            self.write_msg(con, result) # Send the result to the client to process the result and react accordingly.
 
-            if authUser:
-                result += "1OK"
-                if attempt not in self.usersLoggedOn:
-                    auth = True
-                    result += ":2OK"
-                    user = attempt
-                    self.usersLoggedOn.append(user)
-                else:
-                    result += ":2NO"
-            else:
-                result += "1NO"
-
-            self.writeMsg(con, result)
-
-            if auth:
+            if userAuthorised: # This is set to true when the client is logged on successfully, no need to authorise them anymore
                 break
 
-        if auth:
+        if userAuthorised: # The user has been authorised, wait for instructions...
             print("\n%s authenticated.\n" % str(user))
-            #self.chat(con, address, user)
-            while True:
-                msg = self.readMsg(con)
 
+<<<<<<< imrans-branch
                 if msg == '1':
                     self.getServerNameIp(con)
                 elif msg == '2':
@@ -108,6 +110,30 @@ class serverTcp():
                 elif msg == '5':
                     self.quitProgram(user, con)
                     break
+=======
+            quitList = ['q', 'quit', 'exit', '5'] # List of commands the client can use to close the connection
+    
+            while True:
+                # The user has been authorised, they now have access to our servers records. 
+                msg = self.read_msg(con) 
+
+                if msg == '1':
+                    self.get_server_name_and_ip(con)
+
+                elif msg == '2':
+                    self.get_statistics(con)
+
+                elif msg == '3':
+                    self.add_new_organisation(con)
+
+                elif msg == '4':
+                    self.remove_organisation(con)
+                
+                elif msg in quitList:
+                    self.quit_program(user, con)
+                    break
+
+>>>>>>> local
                 else:
                     print("bad user...")
                     self.writeMsg(con, "bad user...")
@@ -115,11 +141,22 @@ class serverTcp():
 
         print("The End")
 
-    def getServerNameIp(self, con: socket):
-        self.writeMsg(con, "1OK")
+    def get_server_name_and_ip(self, con: socket):
+        self.write_msg(con, "1OK")
+        request = self.read_msg(con)
+        serverNameAndIp = []
 
-        request = self.readMsg(con)
+        try:
+            f = open("organisations.txt", 'r')
+            raw = f.readlines()
+            f.close()
+        except IOError:
+            print("File not found")
+            self.write_msg(con, "We are sorry for any inconvenience our servers are down :(")
+        else:
+            organisations = list(map(str.split, raw))
 
+<<<<<<< imrans-branch
         serverList = self.get_server_list()
 
         organisations = [item[0] for item in serverList]
@@ -135,10 +172,30 @@ class serverTcp():
         else:
             print("not ok")
             self.writeMsg(con, "server not ok")
+=======
+            for organisation in organisations:
+                
+                if organisation[0].lower() == request.lower():
+                    serverNameAndIp = [organisation[1], organisation[2]]
 
-    def getStatistics(self, con: socket):
-        self.writeMsg(con, "2OK")
+            if len(serverNameAndIp) > 1:
+                self.write_msg(con, serverNameAndIp)
+            else:
+                self.write_msg(con, "Organisation not listed...")
 
+    def get_statistics(self, con: socket):
+
+        self.write_msg(con, "2OK") # Acknowledgment from server to client.
+>>>>>>> local
+
+        """ The client has requested the server uptime statistics. The first thing we have to do is open the file 
+            and make a seperate list of uptimes.
+        """
+        organisations = self.get_file("organisations.txt") # Retrieve the file using function get_file() 
+       
+        uptimes = [] # Initialise an empty array to store the server uptimes
+
+<<<<<<< imrans-branch
         serverFile = self.get_server_list()
         uptimeStr = [item[3] for item in serverFile]
         uptimes = list(map(int, uptimeStr))
@@ -156,99 +213,133 @@ class serverTcp():
         average = statistics.mean(uptimes)
 
         # Calculate the median
+=======
+        for organisation in organisations: # Iterate the organisations file and append the 4th element (uptime) to the uptimes[] array
+            uptimes.append( int( organisation[3] ) ) # Cast tjhe string to an integer and append it to the new uptimes list.
+    
+        uptimes.sort() # Sort the list in ascending order
+
+        """ Calculate the average """
+        total = 0
+
+        for uptime in uptimes:
+            total += uptime
+
+        average = total / len(uptimes)
+
+        """ Calculate the median """
+>>>>>>> local
         ''' 
-            If the no. of elements in the list is a even one
+            If the # of elements in the list is a even one
             there is no "middle". Instead a "mean" is calculated
-            from the upper middle and lower middle elements.
+            from the upper-middle and lower-middle elements.
         '''
+<<<<<<< imrans-branch
         if len(uptimes) % 2 == 0:
             print("even")
+=======
+        if len(uptimes) % 2 == 0: # Is the length of the array an even number?
+>>>>>>> local
             idx1 = (len(uptimes) / 2) - 1
             idx2 = (len(uptimes) / 2)
             num1 = uptimes[int(idx1)]
             num2 = uptimes[int(idx2)]
             median = (num1 + num2) / 2
-        else:
+        else: # The array has a middle value
             idx = ((len(uptimes) + 1) / 2) - 1
             median = uptimes[int(idx)]
 
+<<<<<<< imrans-branch
         self.writeMsg(con, [average, median])
+=======
+        """ Calculate the minimum and the maximum """
+        low = uptimes[0]
+        high = uptimes[len(uptimes) - 1]
 
-    def addNewOrganisation(self, con: socket):
-        self.writeMsg(con, "Add a new org...")
+        for uptime in uptimes:
+            if uptime > high:
+                high = uptime
+            if uptime < low:
+                low = uptime
 
-    def removeOrganisation(self, con: socket):
-        self.writeMsg(con, "Remove org...")
+        """ Build a report and send it to the client """
 
+        rep = '{:*^36}\n'.format('')
+        rep += '{:^36}\n'.format('Uptime Statistics Report')
+        rep += '{:*^36}\n'.format('')
+        rep += '{:18}'.format('Mean:')
+        rep += '{:>18}\n'.format(round(average, 2))
+        rep += '{:18}'.format("Median:")
+        rep += '{:>18}\n'.format(median)
+        rep += '{:18}'.format("Minimum:")
+        rep += '{:>18}\n'.format(low)
+        rep += '{:18}'.format("Maximum:")
+        rep += '{:>18}\n'.format(high)
+
+        self.write_msg(con, rep) # Send report
+>>>>>>> local
+
+    def add_new_organisation(self, con: socket):
+        self.write_msg(con, "Add a new org...")
+
+    def remove_organisation(self, con: socket):
+        self.write_msg(con, "Remove org...")
+
+<<<<<<< imrans-branch
     def quitProgram(self, user, con: socket):
         self.usersLoggedOn.remove(user)
         con.close()
         self.soc.close()
+=======
+    def quit_program(self, user, con: socket):
+        self.usersLoggedOn.remove(user) # Remove the user from the currently logged on list.
+        con.close() # Close the clients connection...
+>>>>>>> local
 
     def check_credentials(self, attempt):
         '''
-            This function will use the get_auth_list function
-            to return a list of valid users. The attempt is passed
-            through as an argument and compared against the "database"
+            This function accepts one argument. When a client attempts to login
+            the username and password will be passed through as a list named "attempt"
+            The function opents the users.txt file, and attempts to match a username and password
+            if the attempt is successful the function returns true.AF_INET
         '''
-
-        authList = self.get_auth_list()
-
-        if attempt in authList:
+        authList = self.get_file("users.txt") # Get the users.txt file and store it in authList (The file has been converted to a list)
+        
+        if attempt in authList: # If the attempt is is the list of users return True.
             return True
-        else:
+        else: # The username and password were not found...
             return False
-
-
-    def chat(self, con: socket, address: tuple, user):
-        while True:
-            msg = self.readMsg(con)
-            if msg in ['q', 'exit', 'quit']:
-                self.usersLoggedOn.remove(user)
-                break
-            print("Received: %s" % msg)
-            self.writeMsg(con, msg)
-        print("client %s disconnecting..." % str(address))
-
-        con.close()
-
-
-    def readMsg(self, con: socket):
+    """
+        read_msg accepts one argument. Each time a message is sent to the client it is passed to this function
+        the data is deserialized (converted back to whatever it was before if was transmited) and returned to 
+        the calling statement. All exceptions are handled inside of the function.
+    """
+    def read_msg(self, con):
         try:
-            data = con.recv(4096)
-        except Exception as e:
-            print("ERROR [readMsg]: %s" % str(e))
+            data = con.recv(1024) # Recieve data from the client
+        except socket.Error as e: 
+            print("ERROR [read_msg]: %s" % str(e))
         else:
             try:
                 msg = pickle.loads(data)
             except Exception as e:
-                print("Error [readMsg.pickle]: %s" % str(e))
+                print("Error [read_msg.pickle]: %s" % str(e))
                 return False
             else:
                 return msg
-
-    def writeMsg(self, con: socket, msg: object):
+    
+    """ 
+        write_msg takes two arguments, a socket, 
+        and an object that gets serialised and 
+        sent over the network
+    """
+    def write_msg(self, con, msg):
         try:
-
-            #msg = str(msg).upper()
-
             data = pickle.dumps(msg)
-
             con.send(data)
-
             print("Sent: '%s'" % msg)
         except Exception as e:
-            print("ERROR [writeMsg] %s " % str(e))
-
-    def get_server_uptimes(self):
-        serverList = self.get_server_list()
-
-        uptimeList = [item[0] for item in serverList]
-
-        #for values in serverList:
-        #    output.append(values[3])
-
-        return uptimeList
+            print("ERROR [write_msg] %s " % str(e))
 
     def get_server_list(self):
         try:
@@ -256,24 +347,26 @@ class serverTcp():
         except IOError as e:
             print("File could not be found...")
         else:
+            lines = []
             raw = f.readlines()
             f.close()
-            lines = list(map(str.split, raw))
+            for line in raw:
+                lines.append(line.split())
+            #lines = list(map(str.split, raw))
             return lines
 
-    def get_auth_list(self):
+    def get_file(self, filename):
         '''
             This function opens the file, creates a list out of the contents
             and returns the list to the caller
         '''
         try:
-            f = open('auth.dat', 'r')
+            f = open(filename, 'r')
             try:
                 raw = f.readlines()
 
                 lines = list(map(str.split, raw))
 
-                #print(lines)
             finally:
                 f.close()
                 return lines
