@@ -17,34 +17,40 @@ class clientTcp():
         self.authorised = False
         self.credentials = []
 
+    def main(self):
+        print("hello")
+        
+
     def start(self):
 
         try:
             self.soc.connect((self.host, self.port))
-
+            print("client connected to the server...")
         except error as e:  # socket.error has been raised. Is the server running?
             print("Error connecting to the server: %s" % str(e))
 
         else:
-
+            print("starting for loop to authorise the user")
             for i in range(3):
 
                 self.authenticate()
 
+                #username = input("Username: ")
+
                 msg = self.readMsg()
 
-                if msg == "1OK:2OK":
+                if msg == 2:
                     print("Welcome!")
                     self.authorised = True
                     break
 
-                elif msg == "1OK:2NO":
+                elif msg == 1:
                     print("user already logged on, you have %s attempts remaining" % str(2 - i))
 
-                elif msg == "1NO":
+                elif msg == 0:
                     print("incorrect username or password, you have %s attemps remaining" % str(2 - i))
 
-            if self.authorised:
+            if self.authorised == True:
                 while True:
                     self.menu()
                     selection = input("Enter your choice: ")
@@ -70,12 +76,13 @@ class clientTcp():
         print("Get the server name and IP...")
         self.writeMsg("1")
         msg = self.readMsg()
-        print(msg)
         if msg == '1OK':
+
             request = input("Enter the organisations name: ")
             self.writeMsg(request)
 
             reply = self.readMsg()
+            print(type(reply))
             print(reply)
 
 
