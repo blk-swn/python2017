@@ -70,6 +70,12 @@ class clientTcp():
                     elif selection == '5':
                         self.quitProgram()
                         break
+                    
+                    option = input("Play again? (y/n): ")
+
+                    if option = 'n':
+                        self.quitProgram()
+                        break
 
 
     def getServerNameIp(self):

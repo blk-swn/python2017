@@ -50,11 +50,11 @@ class serverTcp():
             print("\nwaiting for a client to connect...\n")
             con, addr = self.soc.accept()
             """When a client connects, they are given a thread and they begin authorisation in the tcp_link() function."""
-            t = Thread(target=self.tcpLink, args=(con, addr))
+            t = Thread(target=self.tcp_link, args=(con, addr))
             t.start()
             self.connections.append(t)
 
-    def tcpLink(self, con, address):
+    def tcp_link(self, con, address):
         userAuthorised = False # When the user logs on successfully, this will be set to true. Used as a control statement throughout the function.
         user = []
         print("Connection from: %s" % str(address))
@@ -94,18 +94,6 @@ class serverTcp():
         if userAuthorised: # The user has been authorised, wait for instructions...
             print("\n%s authenticated.\n" % str(user))
 
-                if msg == '1':
-                    self.getServerNameIp(con)
-                elif msg == '2':
-                    self.getStatistics(con)
-                elif msg == '3':
-                    self.addNewOrganisation(con)
-                elif msg == '4':
-                    self.removeOrganisation(con)
-                elif msg == '5':
-                    self.quitProgram(user, con)
-                    break
-
             quitList = ['q', 'quit', 'exit', '5'] # List of commands the client can use to close the connection
     
             while True:
@@ -144,15 +132,13 @@ class serverTcp():
             f = open("organisations.txt", 'r')
             raw = f.readlines()
             f.close()
+            for organisation in raw:
+                organisations.append(organisation.split())
         except IOError:
             print("File not found")
             self.write_msg(con, "We are sorry for any inconvenience our servers are down :(")
         else:
-            for organisation in raw:
-                organisations.append(organisation.split())
-
             for organisation in organisations:
-                
                 if organisation[0].lower() == request.lower():
                     serverNameAndIp = [organisation[1], organisation[2]]
 
