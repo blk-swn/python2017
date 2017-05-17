@@ -1,3 +1,6 @@
 .idea/
 .vscode/
 test.py
+bak/
+.DS_Store
+__pycache__/
