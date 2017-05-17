@@ -8,7 +8,6 @@ from socket import *
     handles writing messages to the server. 
 '''
 class clientTcp():
-
     def __init__(self):
         self.host = ''
         self.port = 5001
@@ -21,28 +20,37 @@ class clientTcp():
 
         try:
             self.soc.connect((self.host, self.port))
-
+            print("client connected to the server...")
         except error as e:  # socket.error has been raised. Is the server running?
             print("Error connecting to the server: %s" % str(e))
 
         else:
+            print("starting for loop to authorise the user")
 
             for i in range(3):
 
-                self.authenticate()
+                username = input("Username: ")
+                password = input("Password: ")
+
+                attempt = [username, password]  # Store the username and password pair in a list.
+                print(attempt)
+                self.writeMsg(attempt)
+                print("wrote credentials")
+                #username = input("Username: ")
 
                 msg = self.readMsg()
 
-                if msg == "1OK:2OK":
+                if msg == 2:
                     print("Welcome!")
                     self.authorised = True
                     break
 
-                elif msg == "1OK:2NO":
+                elif msg == 1:
                     print("user already logged on, you have %s attempts remaining" % str(2 - i))
 
-                elif msg == "1NO":
+                elif msg == 0:
                     print("incorrect username or password, you have %s attemps remaining" % str(2 - i))
+
 
             if self.authorised:
                 while True:
@@ -64,41 +72,61 @@ class clientTcp():
                     elif selection == '5':
                         self.quitProgram()
                         break
-                    qt = input("Would you lke to go again? ")
-                    if qt == "no":
+                    else:
+                        print("bad user...")
+
+                    option = input("Play again? (y/n): ")
+
+                    if option == 'n':
                         self.quitProgram()
                         break
 
-
-
+        self.soc.close()
+        print("Have a lovely day!")
 
     def getServerNameIp(self):
         print("Get the server name and IP...")
         self.writeMsg("1")
         msg = self.readMsg()
-        print(msg)
         if msg == '1OK':
+
             request = input("Enter the organisations name: ")
             self.writeMsg(request)
 
             reply = self.readMsg()
+            print(type(reply))
             print(reply)
 
-
     def getStatistics(self):
-        print()
         self.writeMsg("2")
         msg = self.readMsg()
 
         if msg == "2OK":
             result = self.readMsg()
-
+            print(type(result))
             print(result)
 
     def addNewOrganisation(self):
+        orgName = None
+        orgURL = None
+        orgIP = None
+        orgUptime = None
+        newOrganisation = []
+
         self.writeMsg("3")
         msg = self.readMsg()
-        print(msg)
+
+        if msg == "3OK":
+            orgName = input("What is the organisations name? ")
+            orgURL = input("What is the organisations URL? ")
+            orgIP = input("What is the organisations IP address? ")
+            orgUptime = input("What is the organisation's server up-time? ")
+
+            newOrganisation = [orgName, orgURL, orgIP, orgUptime]
+
+            self.writeMsg(newOrganisation)
+
+
 
     def removeOrganisation(self):
         self.writeMsg("4")
@@ -107,21 +135,6 @@ class clientTcp():
 
     def quitProgram(self):
         self.writeMsg("5")
-        self.soc.close()
-
-    def chat(self):
-
-        while True:
-            msg = input("say something: ")
-
-            if msg in ['q', 'quit', 'exit']:
-                self.writeMsg(msg)
-                break
-
-            self.writeMsg(msg)
-            msg = self.readMsg()
-            print(msg)
-
         self.soc.close()
 
     def authenticate(self):
@@ -136,8 +149,6 @@ class clientTcp():
         attempt = [username, password]  # Store the username and password pair in a list.
 
         self.writeMsg(attempt)  # Send the attempt over the network to the server.
-
-
 
     def readMsg(self):
         ''' 
@@ -164,7 +175,7 @@ class clientTcp():
         except error as e:
             print("ERROR: %s" % str(e))
 
-    def writeMsg(self, msg):
+    def writeMsg(self, msg: object):
         try:
             data = pickle.dumps(msg)
             try:
@@ -177,20 +188,14 @@ class clientTcp():
             print("unknown error serializing...")
 
     def menu(self):
-        menu = '\n{:*^36}\n'.format('')
-        menu += '{:^36}\n'.format('Menu')
-        menu += '{:*^36}\n'.format('')
-        menu += '{:6}'.format('(1)')
-        menu += '{:>6}\n'.format('Get Server Name and IP Address')
-        menu += '{:10}'.format('(2)')
-        menu += '{:>10}\n'.format('Retrieve Server Statistics')
-        menu += '{:14}'.format('(3)')
-        menu += '{:>14}\n'.format('Add a New Organisation')
-        menu += '{:14}'.format('(4)')
-        menu += '{:>14}\n'.format('Remove an Organisation')
-        menu += '{:18}'.format('(5)')
-        menu += '{:>18}\n'.format('Quit Program')
-
+        menu = '{:*^54}\n'.format('')
+        menu += '{:^54}\n'.format('Menu')
+        menu += '{:*^54}\n'.format('')
+        menu += '(1) {:20}\n'.format('Get Server Name and IP Address')
+        menu += '(2) {:20}\n'.format('Get Server Stats (mean, median, minimum, maximum)')
+        menu += '(3) {:20}\n'.format('Add a new organisation')
+        menu += '(4) {:20}\n'.format('Remove an organisation')
+        menu += '(5) {:20}\n'.format('Quit program')
         print(menu)
 
 client = clientTcp()
