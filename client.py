@@ -46,11 +46,10 @@ class clientTcp():
                     break
 
                 elif msg == 1:
-                    print("user already logged on, you have %s attempts remaining" % str(2 - i))
+                    print("user already logged on, you have {} attempts remaining".format(2 - i))
 
                 elif msg == 0:
-                    print("incorrect username or password, you have %s attemps remaining" % str(2 - i))
-
+                    print("incorrect username or password, you have {} attempts remaining".format(2 - i))
 
             if self.authorised:
                 while True:

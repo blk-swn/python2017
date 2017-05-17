@@ -94,7 +94,10 @@ class serverTcp():
 
                 if msg == False:    # When a client disconnects abruptly the server will log the user off and break the loop
                     self.quit_program(user, con)
-                    print(user, "has now been logged off.")
+                    print("\n")
+                    print("{} disconnected abruptly!")
+                    print("cleaning up users login details and closing the socket")
+                    print("{} has now been logged off gracefully.".format(user[0]))
                     break
 
                 if msg == '1':
