@@ -36,7 +36,7 @@ class ClientTcp():
                 attempt = [username, password]  # Store the username and password pair in a list.
                 print(attempt)
                 self.write_msg(attempt)
-                print("wrote credentials")
+
                 #username = input("Username: ")
 
                 msg = self.read_msg()

@@ -57,7 +57,7 @@ class serverTcp():
             attempt = self.read_msg(con) # Waiting for the client to send their username and password attempt
             """ Pass the attempt to the check_credentials() function,
                 if the username and password match it returns True """
-            print("attempting authorisation")
+
             attemptAuthorised = self.check_credentials(attempt) # True if the user is in the text file
             
             """  If the user is already logged on they will be rejected access.
@@ -95,7 +95,7 @@ class serverTcp():
                 if msg == False:    # When a client disconnects abruptly the server will log the user off and break the loop
                     self.quit_program(user, con)
                     print("\n")
-                    print("{} disconnected abruptly!")
+                    print("{} disconnected abruptly!".format(user[0]))
                     print("cleaning up users login details and closing the socket")
                     print("{} has now been logged off gracefully.".format(user[0]))
                     break
@@ -116,7 +116,7 @@ class serverTcp():
                     self.quit_program(user, con)
                     break
 
-        print("{} disconnected at {}".format(user[1], time.ctime()))
+        print("{} disconnected at {}".format(address, time.ctime()))
 
     def get_server_name_and_ip(self, con):
         self.write_msg(con, "1OK")
@@ -271,7 +271,7 @@ class serverTcp():
             if the attempt is successful the function returns true.AF_INET
         '''
         authList = self.get_file_as_list("users.txt", 'r') # Get the users.txt file and store it in authList (The file has been converted to a list)
-        print(authList)
+        #print(authList)
         
         if attempt in authList: # If the attempt is is the list of users return True.
             return True
