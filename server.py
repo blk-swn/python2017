@@ -253,8 +253,7 @@ class serverTcp():
             response = self.read_msg(con)
 
             if response == 'y':
-                for organisation in organisations:
-                    if organisation[0].lower() == removeOrg.lower
+                self.write_msg(con, "implement removal...")
             elif response == 'n':
                 self.write_msg(con, "Organisation preserved...")
 
