@@ -95,7 +95,7 @@ class serverTcp():
                 if msg == False:    # When a client disconnects abruptly the server will log the user off and break the loop
                     self.quit_program(user, con)
                     print("\n")
-                    print("{} disconnected abruptly!".format(user[0]))
+                    print("{} disconnected abruptly!")
                     print("cleaning up users login details and closing the socket")
                     print("{} has now been logged off gracefully.".format(user[0]))
                     break
@@ -107,13 +107,11 @@ class serverTcp():
                     self.get_statistics(con)
 
                 elif msg == '3':
-                    """ ToDo: Make this function work """
                     self.add_new_organisation(con)
 
                 elif msg == '4':
-                    """ ToDo: Make this function work """
                     self.remove_organisation(con)
-                
+
                 elif msg in quitList:
                     self.quit_program(user, con)
                     break
@@ -152,13 +150,13 @@ class serverTcp():
             and make a seperate list of uptimes.
         """
         organisations = self.get_file_as_list("organisations.txt", 'r') # Retrieve the file using function get_file_as_list()
-       
+
         uptimes = []
         # Initialise an empty array to store the server uptimes
 
         for organisation in organisations:  # Iterate the organisations file and append the 4th element (uptime) to the uptimes[] array
             uptimes.append(int(organisation[3])) # Cast the string to an integer and append it to the new uptimes list.
-    
+
         uptimes.sort()  # Sort the list in ascending order
 
         """ Calculate the average """
@@ -181,7 +179,7 @@ class serverTcp():
             num1 = uptimes[int(idx1)]
             num2 = uptimes[int(idx2)]
             median = (num1 + num2) / 2
-        else: 
+        else:
             idx = ((len(uptimes) + 1) / 2) - 1
             median = uptimes[int(idx)]
 
@@ -194,6 +192,9 @@ class serverTcp():
                 high = uptime
             if uptime < low:
                 low = uptime
+
+        """ Calculate the Mode """
+        # ToDo: Calculate the mode...
 
         """ Build a report and send it to the client """
 
@@ -234,13 +235,8 @@ class serverTcp():
                 f.close()
                 print("Organisation has been successfully added ")
 
-
-
         else:
             self.write_msg(con, "organisation already exists...")
-
-
-
 
     def remove_organisation(self, con):
         self.write_msg(con, "Remove org...")
