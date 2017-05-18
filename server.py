@@ -151,12 +151,13 @@ class serverTcp():
         """
         organisations = self.get_file_as_list("organisations.txt", 'r') # Retrieve the file using function get_file_as_list()
        
-        uptimes = [] # Initialise an empty array to store the server uptimes
+        uptimes = []
+        # Initialise an empty array to store the server uptimes
 
-        for organisation in organisations: # Iterate the organisations file and append the 4th element (uptime) to the uptimes[] array
-            uptimes.append( int( organisation[3] ) ) # Cast tjhe string to an integer and append it to the new uptimes list.
+        for organisation in organisations:  # Iterate the organisations file and append the 4th element (uptime) to the uptimes[] array
+            uptimes.append(int(organisation[3])) # Cast the string to an integer and append it to the new uptimes list.
     
-        uptimes.sort() # Sort the list in ascending order
+        uptimes.sort()  # Sort the list in ascending order
 
         """ Calculate the average """
         total = 0
@@ -209,26 +210,27 @@ class serverTcp():
         self.write_msg(con, rep) # Send report
 
     def add_new_organisation(self, con):
-        switch = False
+        switch = True
         self.write_msg(con, "3OK")
-        newOrganisation = self.read_msg(con)
+        orgList = self.read_msg(con)
         organisations = self.get_file_as_list("organisations.txt", 'r')
 
         for organisation in organisations:
 
-            if organisation[0].lower() == newOrganisation[0].lower():
+            if organisation[0].lower() == orgList[0].lower():
+                switch = False
                 break
-            else:
-                switch = True
-                break
+
 
         if switch:
             self.write_msg(con, "adding the organisation...")
 
+            orgStr = "{0}\t\t\t{1}\t\t\t{2}\t{3}\n".format(orgList[0], orgList[1], orgList[2], orgList[3])
+            print(orgStr)
             with open("organisations.txt", 'a') as f:
-                f.write(str(newOrganisation))
+                f.write(str(orgStr))
                 f.close()
-                print("Organisations ")
+                print("Organisation has been successfully added ")
 
 
 

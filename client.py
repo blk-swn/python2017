@@ -1,13 +1,14 @@
 import pickle
 from socket import *
+import time
 
 '''
     This is the client side. Everything the client does is inside this class named clientTcp().
     Its pretty easy to understand once you break it up. I have split most of the program up into functions.
-    def readMsg() is a function for reading messages from the server and writeMsg() is a similar function that 
+    def read_msg() is a function for reading messages from the server and write_msg() is a similar function that 
     handles writing messages to the server. 
 '''
-class clientTcp():
+class ClientTcp():
     def __init__(self):
         self.host = ''
         self.port = 5001
@@ -34,11 +35,11 @@ class clientTcp():
 
                 attempt = [username, password]  # Store the username and password pair in a list.
                 print(attempt)
-                self.writeMsg(attempt)
+                self.write_msg(attempt)
                 print("wrote credentials")
                 #username = input("Username: ")
 
-                msg = self.readMsg()
+                msg = self.read_msg()
 
                 if msg == 2:
                     print("Welcome!")
@@ -57,19 +58,19 @@ class clientTcp():
                     selection = input("Enter your choice: ")
 
                     if selection == '1':
-                        self.getServerNameIp()
+                        self.get_server_name_and_ip()
 
                     elif selection == '2':
-                        self.getStatistics()
+                        self.get_statistics()
 
                     elif selection == '3':
-                        self.addNewOrganisation()
+                        self.add_new_organisation()
 
                     elif selection == '4':
-                        self.removeOrganisation()
+                        self.remove_organisation()
 
                     elif selection == '5':
-                        self.quitProgram()
+                        self.quit_program()
                         break
                     else:
                         print("bad user...")
@@ -77,43 +78,39 @@ class clientTcp():
                     option = input("Play again? (y/n): ")
 
                     if option == 'n':
-                        self.quitProgram()
+                        self.quit_program()
                         break
 
         self.soc.close()
-        print("Have a lovely day!")
+        print("Program Terminating...!")
 
-    def getServerNameIp(self):
+    def get_server_name_and_ip(self):
         print("Get the server name and IP...")
-        self.writeMsg("1")
-        msg = self.readMsg()
+        self.write_msg("1")
+        msg = self.read_msg()
         if msg == '1OK':
 
             request = input("Enter the organisations name: ")
-            self.writeMsg(request)
+            self.write_msg(request)
 
-            reply = self.readMsg()
+            reply = self.read_msg()
             print(type(reply))
             print(reply)
 
-    def getStatistics(self):
-        self.writeMsg("2")
-        msg = self.readMsg()
+    def get_statistics(self):
+        self.write_msg("2")
+        #time.sleep(0.05)
+        msg = self.read_msg()
 
         if msg == "2OK":
-            result = self.readMsg()
+            result = self.read_msg()
             print(type(result))
             print(result)
 
-    def addNewOrganisation(self):
-        self.writeMsg("3")
-        orgName = None
-        orgURL = None
-        orgIP = None
-        orgUptime = None
-        newOrganisation = []
+    def add_new_organisation(self):
+        self.write_msg("3")
 
-        msg = self.readMsg()
+        msg = self.read_msg()
 
         if msg == "3OK":
             orgName = input("What is the organisations name? ")
@@ -123,20 +120,20 @@ class clientTcp():
 
             newOrganisation = [orgName, orgURL, orgIP, orgUptime]
 
-            self.writeMsg(newOrganisation)
+            self.write_msg(newOrganisation)
 
-            msg = self.readMsg()
+            msg = self.read_msg()
             print(msg)
 
 
 
-    def removeOrganisation(self):
-        self.writeMsg("4")
-        msg = self.readMsg()
+    def remove_organisation(self):
+        self.write_msg("4")
+        msg = self.read_msg()
         print(msg)
 
-    def quitProgram(self):
-        self.writeMsg("5")
+    def quit_program(self):
+        self.write_msg("5")
         self.soc.close()
 
     def authenticate(self):
@@ -150,9 +147,9 @@ class clientTcp():
 
         attempt = [username, password]  # Store the username and password pair in a list.
 
-        self.writeMsg(attempt)  # Send the attempt over the network to the server.
+        self.write_msg(attempt)  # Send the attempt over the network to the server.
 
-    def readMsg(self):
+    def read_msg(self):
         ''' 
         This function looks confusing because of the exceptions 
         Without the exceptions it looks like this:
@@ -177,7 +174,7 @@ class clientTcp():
         except error as e:
             print("ERROR: %s" % str(e))
 
-    def writeMsg(self, msg: object):
+    def write_msg(self, msg: object):
         try:
             data = pickle.dumps(msg)
             try:
@@ -200,5 +197,5 @@ class clientTcp():
         menu += '(5) {:20}\n'.format('Quit program')
         print(menu)
 
-client = clientTcp()
+client = ClientTcp()
 client.start()
