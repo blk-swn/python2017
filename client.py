@@ -130,7 +130,21 @@ class ClientTcp():
     def remove_organisation(self):
         self.write_msg("4")
         msg = self.read_msg()
-        print(msg)
+        if msg == "4OK":
+            removeOrganisation = input("Which organisation would you like to remove? ")
+            self.write_msg(removeOrganisation)
+
+            msg = self.read_msg()
+            while True:
+                response = input("Are you sure you want to remove {} (y/n): ".format(msg))
+                if response == 'y':
+                    self.write_msg(reponse)
+                    break
+                elif response == 'n':
+                    self.write_msg(response)
+                    break
+                else:
+                    print("bad user... enter 'y' or 'n'")
 
     def quit_program(self):
         self.write_msg("5")

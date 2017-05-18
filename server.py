@@ -219,11 +219,9 @@ class serverTcp():
         organisations = self.get_file_as_list("organisations.txt", 'r')
 
         for organisation in organisations:
-
             if organisation[0].lower() == orgList[0].lower():
                 switch = False
                 break
-
 
         if switch:
             self.write_msg(con, "adding the organisation...")
@@ -239,7 +237,28 @@ class serverTcp():
             self.write_msg(con, "organisation already exists...")
 
     def remove_organisation(self, con):
-        self.write_msg(con, "Remove org...")
+        switch = False
+        org = []
+        self.write_msg(con, "4OK")
+        organisations = self.get_file_as_list("organisations.txt", 'w')
+        removeOrg = self.read_msg(con)
+
+        for organisation in organisations:
+            if organisation[0].lower() == removeOrg.lower():
+                switch = True
+                org = oraganisation
+
+        if switch:
+            self.write_msg(con, org)
+            response = self.read_msg(con)
+
+            if response == 'y':
+                for organisation in organisations:
+                    if organisation[0].lower() == removeOrg.lower
+            elif response == 'n':
+                self.write_msg(con, "Organisation preserved...")
+
+
 
     def quit_program(self, user, con):
         self.usersLoggedOn.remove(user) # Remove the user from the currently logged on list.
