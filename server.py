@@ -149,7 +149,7 @@ class serverTcp():
         """ The client has requested the server uptime statistics. The first thing we have to do is open the file 
             and make a seperate list of uptimes.
         """
-        organisations = self.get_file("organisations.txt", 'r') # Retrieve the file using function get_file()
+        organisations = self.get_file_as_list("organisations.txt", 'r') # Retrieve the file using function get_file_as_list()
        
         uptimes = [] # Initialise an empty array to store the server uptimes
 
@@ -209,10 +209,31 @@ class serverTcp():
         self.write_msg(con, rep) # Send report
 
     def add_new_organisation(self, con):
+        switch = False
         self.write_msg(con, "3OK")
         newOrganisation = self.read_msg(con)
-        organisations = self.get_file("organisations.txt", 'r')
+        organisations = self.get_file_as_list("organisations.txt", 'r')
 
+        for organisation in organisations:
+
+            if organisation[0].lower() == newOrganisation[0].lower():
+                break
+            else:
+                switch = True
+                break
+
+        if switch:
+            self.write_msg(con, "adding the organisation...")
+
+            with open("organisations.txt", 'a') as f:
+                f.write(str(newOrganisation))
+                f.close()
+                print("Organisations ")
+
+
+
+        else:
+            self.write_msg(con, "organisation already exists...")
 
 
 
@@ -231,7 +252,7 @@ class serverTcp():
             The function opents the users.txt file, and attempts to match a username and password
             if the attempt is successful the function returns true.AF_INET
         '''
-        authList = self.get_file("users.txt", 'r') # Get the users.txt file and store it in authList (The file has been converted to a list)
+        authList = self.get_file_as_list("users.txt", 'r') # Get the users.txt file and store it in authList (The file has been converted to a list)
         print(authList)
         
         if attempt in authList: # If the attempt is is the list of users return True.
@@ -270,21 +291,8 @@ class serverTcp():
         except Exception as e:
             print("ERROR [write_msg] %s " % str(e))
 
-    def get_server_list(self):
-        try:
-            f = open("organisations.dat", 'r')
-        except IOError as e:
-            print("File could not be found...")
-        else:
-            lines = []
-            raw = f.readlines()
-            f.close()
-            for line in raw:
-                lines.append(line.split())
-            #lines = list(map(str.split, raw))
-            return lines
 
-    def get_file(self, filename, permission):
+    def get_file_as_list(self, filename, permission):
         lines = []
         '''
             This function opens the file, creates a list out of the contents
@@ -294,9 +302,9 @@ class serverTcp():
             f = open(filename, permission)
             try:
                 raw = f.readlines()
-                #for line in raw:
-                #    lines.append(line.split())
-                lines = list(map(str.split, raw))
+                for line in raw:
+                    lines.append(line.split())
+                #lines = list(map(str.split, raw))
             finally:
                 f.close()
                 return lines

@@ -106,13 +106,13 @@ class clientTcp():
             print(result)
 
     def addNewOrganisation(self):
+        self.writeMsg("3")
         orgName = None
         orgURL = None
         orgIP = None
         orgUptime = None
         newOrganisation = []
 
-        self.writeMsg("3")
         msg = self.readMsg()
 
         if msg == "3OK":
@@ -124,6 +124,9 @@ class clientTcp():
             newOrganisation = [orgName, orgURL, orgIP, orgUptime]
 
             self.writeMsg(newOrganisation)
+
+            msg = self.readMsg()
+            print(msg)
 
 
 
