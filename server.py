@@ -95,7 +95,7 @@ class serverTcp():
                 if msg == False:    # When a client disconnects abruptly the server will log the user off and break the loop
                     self.quit_program(user, con)
                     print("\n")
-                    print("{} disconnected abruptly!")
+                    print("{} disconnected abruptly!".format(user[0]))
                     print("cleaning up users login details and closing the socket")
                     print("{} has now been logged off gracefully.".format(user[0]))
                     break
@@ -107,9 +107,11 @@ class serverTcp():
                     self.get_statistics(con)
 
                 elif msg == '3':
+                    """ ToDo: Make this function work """
                     self.add_new_organisation(con)
 
                 elif msg == '4':
+                    """ ToDo: Make this function work """
                     self.remove_organisation(con)
                 
                 elif msg in quitList:
