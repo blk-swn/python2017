@@ -240,20 +240,33 @@ class serverTcp():
         switch = False
         org = []
         self.write_msg(con, "4OK")
-        organisations = self.get_file_as_list("organisations.txt", 'w')
+        organisations = self.get_file_as_list("organisations.txt", 'r')
         removeOrg = self.read_msg(con)
 
         for organisation in organisations:
             if organisation[0].lower() == removeOrg.lower():
                 switch = True
-                org = oraganisation
+                org = organisation
 
         if switch:
             self.write_msg(con, org)
             response = self.read_msg(con)
 
+            try:
+                f = open("organisations.txt", 'r')
+                lines = f.readlines()
+            except:
+                print("error...")
+
             if response == 'y':
-                self.write_msg(con, "implement removal...")
+
+                with open("organisations.txt", 'w') as f:
+                    for organisation in lines:
+
+                        if organisation.find(removeOrg) == -1:
+                            f.write(organisation)
+
+                self.write_msg(con, "the organisation has been removed")
             elif response == 'n':
                 self.write_msg(con, "Organisation preserved...")
 

@@ -138,13 +138,15 @@ class ClientTcp():
             while True:
                 response = input("Are you sure you want to remove {} (y/n): ".format(msg))
                 if response == 'y':
-                    self.write_msg(reponse)
+                    self.write_msg(response)
                     break
                 elif response == 'n':
                     self.write_msg(response)
                     break
                 else:
                     print("bad user... enter 'y' or 'n'")
+            serverResponse = self.read_msg()
+            print(serverResponse)
 
     def quit_program(self):
         self.write_msg("5")
