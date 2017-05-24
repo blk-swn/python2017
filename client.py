@@ -125,7 +125,12 @@ class ClientTcp():
                 print('\nInvalid IP address, please try again.\n')
                 orgIP = self.getIP()
             
-            orgUptime = input("What is the organisation's server up-time? ")
+            orgUptime = self.getUptime()
+
+            while orgUptime is not True:
+                print("Invalid uptime, must be a number value, please try again.")
+                orgUptime = input("What is the organisation's server up-time? ")
+
 
 
             newOrganisation = [orgName, orgURL, orgIP, orgUptime]
@@ -135,7 +140,15 @@ class ClientTcp():
             msg = self.read_msg()
             print(msg)
 
-    def getURL(self, url):
+    def getUptime():
+        uptime = input("How long has the server been running? ")
+
+        if uptime.isdigit():
+            return True
+        else:
+            return False
+
+    def getURL(self):
         url = input("What is the organisations URL? ")
         a = url.split('.')
 
@@ -154,31 +167,19 @@ class ClientTcp():
         ipSplit = ip.split('.')
 
         if len(ipSplit) != 4: # Must have 4 parts to an IPv4 address
+            print("IP address requires 4 parts seperated by '.'")
             return False
 
         for x in ipSplit:
-            if x.isdigit():
-                if int(x) < 0 or int(x) > 255:
+            if x.isdigit(): # Each character inside the octet must be a digit
+                if int(x) < 0 or int(x) > 255:  # Cannot be below 0 or above 255.
+                    print("Each IP address octet requires the value to be between 0 and 255.")
                     return False
             else:
                 return False
         
         return True
-
-    def validateIp(self, ip):
-        a = ip.split('.')
-
-        if len(a) != 4:
-            return False
-
-        for x in a:
-            if x.isdigit():
-                if int(x) < 0 or int(x) > 255:
-                    return False
-            else:
-                return False
-
-        return True    
+   
 
     def remove_organisation(self):
         self.write_msg("4")

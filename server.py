@@ -133,6 +133,7 @@ class ServerTcp():
             print("File not found")
             self.write_msg(con, "We are sorry for any inconvenience our servers are down :(")
         else:
+            print(organisations)
             for organisation in organisations:
                 if organisation[0].lower() == request.lower():
                     serverNameAndIp = [organisation[1], organisation[2]]
@@ -216,6 +217,7 @@ class ServerTcp():
         switch = True
         self.write_msg(con, "3OK")
         orgList = self.read_msg(con)
+    
         organisations = self.get_file_as_list("organisations.txt", 'r')
 
         for organisation in organisations:
