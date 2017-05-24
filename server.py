@@ -7,13 +7,13 @@ from threading import Thread
     This is the server class it handles everything on the server side.
 '''
 
-class serverTcp():
+class ServerTcp():
     def __init__(self):
         '''
             This is the initializer '__init__' method. When i create an instance of the class
             at the bottom of the file, this method is automatically called and it just initializes
             some variables so we can access them throughout the class. the variables with self. in-front
-            of them are like global variables accessible from anywhere in the serverTcp class.
+            of them are like global variables accessible from anywhere in the ServerTcp class.
         '''
 
         self.host = '' # If this doesnt work try gethostname()
@@ -343,9 +343,9 @@ class serverTcp():
             print("Cannot find/read the file.")
 
 '''
-    The end of the serverTcp() class. 
+    The end of the ServerTcp() class. 
 '''
 
-server = serverTcp()    # Create an instance of the serverTcp() class
+server = ServerTcp()    # Create an instance of the ServerTcp() class
 
 server.start()          # Run the start method.

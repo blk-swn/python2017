@@ -1,1 +1,2 @@
-# Intro to Python and Network Programming 2017
+# Python Project 2017
+A project for Intro to Network Programming with Python

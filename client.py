@@ -114,9 +114,19 @@ class ClientTcp():
 
         if msg == "3OK":
             orgName = input("What is the organisations name? ")
-            orgURL = input("What is the organisations URL? ")
-            orgIP = input("What is the organisations IP address? ")
+
+            orgURL = self.getURL()
+            while orgURL is not True:
+                print("\nInvalid URL, try again.\n")
+                orgURL = self.getURL()
+            
+            orgIP = self.getIP()
+            while orgIP is not True:
+                print('\nInvalid IP address, please try again.\n')
+                orgIP = self.getIP()
+            
             orgUptime = input("What is the organisation's server up-time? ")
+
 
             newOrganisation = [orgName, orgURL, orgIP, orgUptime]
 
@@ -125,7 +135,50 @@ class ClientTcp():
             msg = self.read_msg()
             print(msg)
 
+    def getURL(self, url):
+        url = input("What is the organisations URL? ")
+        a = url.split('.')
 
+        if len(a) < 2: # Must have minimum 2 parts
+            return False
+        if len(a[-1]) > 3: # the last part of the address i.e. .com, .au, .ca, etc. must be 3 characters or less!
+            return False
+        
+        return True
+
+
+    def getIP(self):
+        """This function will get and validate an IP address input by the user"""
+
+        ip = input("What is the organisations IP address? ")
+        ipSplit = ip.split('.')
+
+        if len(ipSplit) != 4: # Must have 4 parts to an IPv4 address
+            return False
+
+        for x in ipSplit:
+            if x.isdigit():
+                if int(x) < 0 or int(x) > 255:
+                    return False
+            else:
+                return False
+        
+        return True
+
+    def validateIp(self, ip):
+        a = ip.split('.')
+
+        if len(a) != 4:
+            return False
+
+        for x in a:
+            if x.isdigit():
+                if int(x) < 0 or int(x) > 255:
+                    return False
+            else:
+                return False
+
+        return True    
 
     def remove_organisation(self):
         self.write_msg("4")
