@@ -150,13 +150,19 @@ class ServerTcp():
         """ The client has requested the server uptime statistics. The first thing we have to do is open the file 
             and make a seperate list of uptimes.
         """
-        organisations = self.get_file_as_list("organisations.txt", 'r') # Retrieve the file using function get_file_as_list()
+        organisations = self.get_file_as_list("organisations.txt") # Retrieve the file using function get_file_as_list()
 
         uptimes = []
         # Initialise an empty array to store the server uptimes
 
         for organisation in organisations:  # Iterate the organisations file and append the 4th element (uptime) to the uptimes[] array
-            uptimes.append(int(organisation[3])) # Cast the string to an integer and append it to the new uptimes list.
+            try:
+                if organisation[3].isdigit():
+                    uptimes.append(int(organisation[3])) # Cast the string to an integer and append it to the new uptimes list.
+            
+            except IndexError:
+                print("organisations file is dirty")
+
 
         uptimes.sort()  # Sort the list in ascending order
 
@@ -218,7 +224,7 @@ class ServerTcp():
         self.write_msg(con, "3OK")
         orgList = self.read_msg(con)
     
-        organisations = self.get_file_as_list("organisations.txt", 'r')
+        organisations = self.get_file_as_list("organisations.txt")
 
         for organisation in organisations:
             if organisation[0].lower() == orgList[0].lower():
@@ -242,7 +248,7 @@ class ServerTcp():
         switch = False
         org = []
         self.write_msg(con, "4OK")
-        organisations = self.get_file_as_list("organisations.txt", 'r')
+        organisations = self.get_file_as_list("organisations.txt")
         removeOrg = self.read_msg(con)
 
         for organisation in organisations:
@@ -285,7 +291,7 @@ class ServerTcp():
             The function opents the users.txt file, and attempts to match a username and password
             if the attempt is successful the function returns true.AF_INET
         '''
-        authList = self.get_file_as_list("users.txt", 'r') # Get the users.txt file and store it in authList (The file has been converted to a list)
+        authList = self.get_file_as_list("users.txt") # Get the users.txt file and store it in authList (The file has been converted to a list)
         #print(authList)
         
         if attempt in authList: # If the attempt is is the list of users return True.
@@ -325,29 +331,58 @@ class ServerTcp():
             print("ERROR [write_msg] %s " % str(e))
 
 
-    def get_file_as_list(self, filename, permission):
+    def get_file_as_list(self, filename):
         lines = []
         '''
             This function opens the file, creates a list out of the contents
             and returns the list to the caller
         '''
         try:
-            f = open(filename, permission)
-            try:
-                raw = f.readlines()
-                for line in raw:
-                    lines.append(line.split())
-                #lines = list(map(str.split, raw))
-            finally:
-                f.close()
-                return lines
+            f = open(filename, 'r')
         except IOError:
             print("Cannot find/read the file.")
+        else:
+            raw = f.readlines()
+            f.close()
+            for line in raw:
+                lines.append(line.split())
+                #lines = list(map(str.split, raw))   
+            return lines
+        
+            
 
 '''
     The end of the ServerTcp() class. 
 '''
 
-server = ServerTcp()    # Create an instance of the ServerTcp() class
+#server = ServerTcp()    # Create an instance of the ServerTcp() class
 
-server.start()          # Run the start method.
+#server.start()          # Run the start method.
+
+def get_score():
+    score = 0
+    while True:
+        try:
+            score = int(input("What was your score: "))
+        except ValueError:
+            print("invalid value, try again.")
+        else:
+            return score
+
+def main():
+    total = 0
+    score = get_score()
+    while score != 0:
+        total += score
+        score = get_score()
+    
+    if total < 0:
+        message = "Your score is {}, go home mate."
+    elif total == 0:
+        message = "You scored {}, better luck next time."
+    else:
+        message = "You scored {}!, well done!"
+    
+    print(message.format(total))
+
+main()
